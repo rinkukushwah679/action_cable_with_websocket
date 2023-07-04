@@ -1,0 +1,140 @@
+<h1>Home#index</h1>
+<p>Find me in app/views/home/index.html.erb</p>
+
+<div class="all_data">
+	<%#= render partial: "home/index", locals: {data: @articles}%>
+	<p style="color: green"><%= notice %></p>
+
+	<h1>Articles</h1>
+
+	<div id="articles" class="article_append">
+
+	  <% @articles.each do |article| %>
+	  	<div id = "article_<%= article.id%>">
+		    <%= render article %>
+		    <p>
+		      <%= link_to "Show this article", article %>
+		    </p>
+		  </div>
+	  <% end %>
+	</div>
+
+<%= link_to "New article", new_article_path %>
+
+</div>
+<!-- <div id="dhjdhjdfdf"></div> -->
+
+
+
+<div class="container h-100">
+  <div class="row align-items-center h-100">
+    <div class="container rounded">
+      <h1 class="text-center">Featured in:</h1>
+      <div class="slider">
+        <div class="logos">
+          <i class="fab fa-js fa-4x"></i>
+          <i class="fab fa-linkedin-in fa-4x">sdcsdcd</i>
+          <i class="fab fa-dribbble fa-4x">sdcs</i>
+          <i class="fab fa-medium-m fa-4x">dcsdcds</i>
+          <i class="fab fa-github fa-4x">sdcdscd</i>
+        </div>
+        <div class="logos">
+          <i class="fab fa-js fa-4x">dcscscd</i>
+          <i class="fab fa-linkedin-in fa-4x">sdcdscd</i>
+          <i class="fab fa-dribbble fa-4x">sdcdsdcd</i>
+          <i class="fab fa-medium-m fa-4x">sdcsdcd</i>
+          <i class="fab fa-github fa-4x">sdcsd</i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<style type="text/css">
+	body,html {
+	  height: 100%;
+	  background-color: white;
+	}
+
+	.container {
+  overflow: hidden;
+  .slider {
+    animation: slidein 30s linear infinite;
+    white-space: nowrap;
+    .logos {
+      width: 100%;
+      display: inline-block;
+      margin: 0px 0;
+      .fab {
+        width: calc(100% / 5);
+        animation: fade-in 0.5s 
+        cubic-bezier(0.455, 0.03, 0.515, 0.955) forwards;
+      }
+    }
+	  }
+	}
+
+	@keyframes slidein {
+	  from {
+	    transform: translate3d(0, 0, 0);
+	  }
+	  to {
+	    transform: translate3d(-100%, 0, 0);
+	  }
+	}
+
+	@keyframes fade-in {
+	  0% {
+	    opacity: 0;
+	  }
+	  100% {
+	    opacity: 1;
+	  }
+	}
+
+</style>
+
+<script type="text/javascript">
+	function connect() {
+		// body...
+		let socket = new WebSocket("ws://localhost:3000/cable");
+    socket.onopen = function(e) {
+      console.log("[open] Connection established");
+      socket.send(JSON.stringify({command: 'subscribe',identifier: JSON.stringify(({channel: 'MessagesChannel'}))}))
+    };
+    socket.onmessage = function(event) {
+      $(document).ready(function(){
+      	// console.log("*************", event.data.message.data.id)
+        // if ((JSON.parse(event.data).message != null) && (JSON.parse(event.data).message.data != null) && (JSON.parse(event.data).message.data.action == "reload_partial")) {
+        //   $.ajax({
+        //     url: "/get_record"
+        //   });
+        // }
+
+
+        // $.ajax({
+        //   url: "/get_record"
+        // });
+        // $("#article_" + event.data.message.data.id.to_s).append("<p><strong>Title:</strong>dcdcdcf</p>")
+        // console.log("*************", event.data.message)
+        // if (JSON.parse(event.data).type != "ping"){
+        	if ((JSON.parse(event.data).message != null) && (JSON.parse(event.data).message.data != null)){
+	        	// alert(JSON.parse(event.data).message.data.id)
+	        	$(".article_append").append("<p><strong>Title:</strong><%= JSON.parse(event.data).message.data.id rescue nil %></p>")
+        	}
+        // }
+      })
+    };
+    socket.onclose = function(event) {
+      console.log('Socket is closed. Reconnect will be attempted in 1 second.', event.reason);
+      setTimeout(function() {
+        connect();
+      }, 1000);
+    };
+    socket.onerror = function(error) {
+      console.log(`[error] ${error.message}`);
+    };
+	}
+	connect();
+</script>
